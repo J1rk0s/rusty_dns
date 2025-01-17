@@ -13,5 +13,9 @@ mod tests {
         assert_eq!(packet.header.ancount, 0);
         assert_eq!(packet.header.nscount, 0);
         assert_eq!(packet.header.arcount, 0);
+
+        assert_eq!(packet.body.qname, "www.youtube.com");
+        assert_eq!(packet.body.qclass, 1);
+        assert_eq!(packet.body.qtype, 1);
     }
 }
