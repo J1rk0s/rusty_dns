@@ -1,5 +1,6 @@
 use std::net::{self, UdpSocket};
-use crate::models::packets::DnsPacket;
+use crate::models::packets::{DnsAnswer, DnsPacket};
+use crate::models::lookup::LOOKUP;
 
 pub struct DnsServer{
     sock: net::UdpSocket,
@@ -17,7 +18,7 @@ impl DnsServer {
         }
     }
 
-    pub fn run(self) -> () {
+    pub fn run(&self) -> () {
         println!("Server listening on {}", self.addr);
         
         loop {
@@ -28,5 +29,11 @@ impl DnsServer {
             let packet: DnsPacket = DnsPacket::parse(&buff);
             packet.print_data();
         }
+    }
+
+    fn get_answer(&self, packet: &DnsPacket) -> DnsAnswer {
+        let ip = LOOKUP.get(packet.question.qname.as_str());
+
+        DnsAnswer::default()
     }
 }

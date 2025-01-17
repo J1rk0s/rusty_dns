@@ -17,15 +17,29 @@ pub struct DnsQuestion {
     pub qclass: u16
 }
 
+#[repr(C)]
+#[derive(Default, Clone)]
+pub struct DnsAnswer {
+    pub name: String,
+    pub type_code: u16,
+    pub class: u16,
+    pub ttl: u64,
+    pub rdlen: u32,
+    pub rdata: Vec<u8>
+}
+
 #[derive(Default, Clone)]
 pub struct DnsPacket {
     pub header: DnsHeader,
-    pub body: DnsQuestion
+    pub question: DnsQuestion,
+    pub answer: DnsAnswer
 }
 
 impl DnsPacket {
+
+    /// Converts u8 buffer to a DnsPacket
     pub fn parse(data: &[u8]) -> DnsPacket {
-        assert!(data.len() > 12);
+        assert!(data.len() > 12, "Data must always contain header");
 
         let id = u16::from_be_bytes(data[0..2].try_into().unwrap());
         let flags = u16::from_be_bytes(data[2..4].try_into().unwrap());
@@ -63,18 +77,20 @@ impl DnsPacket {
         let qtype = u16::from_be_bytes(data[idx + 1..idx + 3].try_into().unwrap());
         let qclass = u16::from_be_bytes(data[idx + 3..idx + 5].try_into().unwrap());
 
-        let body = DnsQuestion {
+        let question = DnsQuestion {
             qname: name,
-            qtype: qtype,
-            qclass: qclass
+            qtype,
+            qclass
         };
 
         DnsPacket {
-            header: header,
-            body: body
+            header,
+            question,
+            answer: DnsAnswer::default()
         }
     }
 
+    /// Prints the DNS header flags
     pub fn print_flags(&self) -> () {
         let qr = (self.header.flags >> 15) & 0b1;
         let opcode = (self.header.flags >> 11) & 0b1111;
@@ -96,6 +112,7 @@ impl DnsPacket {
         println!("      RCODE: {}", rcode);
     }
 
+    /// Prints the DNS header and question to the console
     pub fn print_data(&self) {
         println!("DNS header");
         println!("  ID: {}", self.header.id);
@@ -104,10 +121,10 @@ impl DnsPacket {
         println!("  ANCOUNT: {}", self.header.ancount);
         println!("  NSCOUNT: {}", self.header.nscount);
         println!("  ARCOUNT: {}", self.header.arcount); 
-        println!("DNS body");
-        println!("  QNAME: {}", self.body.qname);
-        println!("  QTYPE: {}", self.body.qtype);
-        println!("  QCLASS: {}", self.body.qclass);
+        println!("DNS question");
+        println!("  QNAME: {}", self.question.qname);
+        println!("  QTYPE: {}", self.question.qtype);
+        println!("  QCLASS: {}", self.question.qclass);
         println!();
         println!();
     }
