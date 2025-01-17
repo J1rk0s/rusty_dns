@@ -1,5 +1,5 @@
 use std::net::{self, UdpSocket};
-use crate::models::structure::DnsPacket;
+use crate::models::packets::DnsPacket;
 
 pub struct DnsServer{
     sock: net::UdpSocket,

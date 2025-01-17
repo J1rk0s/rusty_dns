@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rusty_dns::models::structure::DnsPacket;
+    use rusty_dns::models::packets::DnsPacket;
 
     #[test]
     fn test_parsing(){
