@@ -27,8 +27,9 @@ impl DnsServer {
 
             println!("Received {} bytes from {}", bytes_written, addr.ip());
             let packet: DnsPacket = DnsPacket::parse(&buff);
+            packet.print_data();
+
             let res: DnsPacket = DnsHandler::handle_packet(&packet);
-            res.print_data();
 
             if let Ok(bytes) = res.to_network_bytes() {
                 println!("Sending response to {}", addr.ip());
