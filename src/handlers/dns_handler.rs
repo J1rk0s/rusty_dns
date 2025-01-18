@@ -10,7 +10,8 @@ impl DnsHandler {
 
         // Header preparation
         cloned.header.ancount = 1;
-        cloned.header.flags |= (cloned.header.flags >> 15) & 0b1;
+        cloned.header.flags |= 0b10000000_00000000;
+        //cloned.header.flags |= 1 << 8;
         
         // Answer preparation
         cloned.answer.name = packet.question.qname.clone();

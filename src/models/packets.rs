@@ -110,7 +110,7 @@ impl DnsPacket {
         let z = (self.header.flags >> 4) & 0b111;
         let rcode = self.header.flags & 0b1111;
         
-        println!("  DNS flags:");
+        println!("  DNS flags ({}):", self.header.flags);
         println!("      QR: {}", qr);
         println!("      OPCODE: {}", opcode);
         println!("      AA: {}", aa);
@@ -152,10 +152,7 @@ impl DnsPacket {
         // Header conversion
         buff.write_u16::<BigEndian>(self.header.id)?;
 
-        let mut flags: u16 = self.header.flags;
-        flags |= (flags >> 15) & 0b1;
-
-        buff.write_u16::<BigEndian>(flags)?;
+        buff.write_u16::<BigEndian>(self.header.flags)?;
         buff.write_u16::<BigEndian>(self.header.qdcount)?;
         buff.write_u16::<BigEndian>(self.header.ancount)?;
         buff.write_u16::<BigEndian>(self.header.nscount)?;
