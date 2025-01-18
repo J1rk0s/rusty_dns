@@ -8,6 +8,11 @@ impl DnsHandler {
     pub fn handle_packet(packet: &DnsPacket) -> DnsPacket {
         let mut cloned = packet.clone();
 
+        // Header preparation
+        cloned.header.ancount = 1;
+        cloned.header.flags |= (cloned.header.flags >> 15) & 0b1;
+        
+        // Answer preparation
         cloned.answer.name = packet.question.qname.clone();
         cloned.answer.type_code = 0x0001;
         cloned.answer.class = 0x0001;

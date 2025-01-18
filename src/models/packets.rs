@@ -1,3 +1,9 @@
+use std::io::{Result, Write};
+use byteorder::{BigEndian, WriteBytesExt};
+
+use crate::string_utils::str_dns_bytes;
+use crate::number_utils::*;
+
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
 pub struct DnsHeader {
@@ -23,11 +29,12 @@ pub struct DnsAnswer {
     pub name: String,
     pub type_code: u16,
     pub class: u16,
-    pub ttl: u64,
-    pub rdlen: u32,
+    pub ttl: u32,
+    pub rdlen: u16,
     pub rdata: Vec<u8>
 }
 
+#[repr(C)]
 #[derive(Default, Clone)]
 pub struct DnsPacket {
     pub header: DnsHeader,
@@ -41,6 +48,7 @@ impl DnsPacket {
     pub fn parse(data: &[u8]) -> DnsPacket {
         assert!(data.len() > 12, "Data must always contain header");
 
+        // Parsing network byte order to machine endian
         let id = u16::from_be_bytes(data[0..2].try_into().unwrap());
         let flags = u16::from_be_bytes(data[2..4].try_into().unwrap());
         let qdcount = u16::from_be_bytes(data[4..6].try_into().unwrap());
@@ -57,6 +65,7 @@ impl DnsPacket {
             arcount,
         };
 
+        // Name extraction
         let mut name = "".to_owned();
         let mut idx = 12;
         while data[idx] != 0 {
@@ -128,6 +137,7 @@ impl DnsPacket {
         println!("DNS answer");
         println!("  NAME: {}", self.answer.name);
         println!("  TYPE: {}", self.answer.type_code);
+        println!("  CLASS: {}", self.answer.class);
         println!("  TTL: {}", self.answer.ttl);
         println!("  RDLEN: {}", self.answer.rdlen);
         println!("  RDATA: {:?}", self.answer.rdata);
@@ -135,8 +145,42 @@ impl DnsPacket {
         println!();
     }
 
-    pub fn to_network_bytes(&self) -> Vec<u8> {
-        todo!()
+    /// Transforms the packet to an array of bytes in network byte order
+    pub fn to_network_bytes(&self) -> Result<Vec<u8>> {
+        let mut buff: Vec<u8> = vec![];
+
+        // Header conversion
+        buff.write_u16::<BigEndian>(self.header.id)?;
+
+        let mut flags: u16 = self.header.flags;
+        flags |= (flags >> 15) & 0b1;
+
+        buff.write_u16::<BigEndian>(flags)?;
+        buff.write_u16::<BigEndian>(self.header.qdcount)?;
+        buff.write_u16::<BigEndian>(self.header.ancount)?;
+        buff.write_u16::<BigEndian>(self.header.nscount)?;
+        buff.write_u16::<BigEndian>(self.header.arcount)?;
+
+        // Question conversion
+        let mut qname: Vec<u8> = str_dns_bytes(&self.question.qname)?;
+        buff.append(&mut qname);
+        buff.write_u8(0)?;
+        buff.write(&u16_to_bytes(self.question.qtype))?;
+        buff.write(&u16_to_bytes(self.question.qclass))?;
+
+        // Answer conversion
+        let mut aname: Vec<u8> = str_dns_bytes(&self.answer.name)?;
+        buff.append(&mut aname);
+        buff.write_u8(0)?;
+        buff.write(&u16_to_bytes(self.answer.type_code))?;
+        buff.write(&u16_to_bytes(self.answer.class))?;
+        buff.write(&u32_to_bytes(self.answer.ttl))?;
+        buff.write(&u16_to_bytes(self.answer.rdlen))?;
+
+        let mut octets: Vec<u8> = self.answer.rdata.clone();
+        buff.append(&mut octets);
+
+        Ok(buff)
     }
     
 }

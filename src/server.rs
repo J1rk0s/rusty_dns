@@ -1,5 +1,6 @@
 use std::net::{self, UdpSocket};
 use crate::{models::packets::DnsPacket, DnsHandler};
+use std::io::Result;
 
 pub struct DnsServer{
     sock: net::UdpSocket,
@@ -17,17 +18,22 @@ impl DnsServer {
         }
     }
 
-    pub fn run(&self) -> () {
+    pub fn run(&self) -> Result<()> {
         println!("Server listening on {}", self.addr);
         
         loop {
             let mut buff: [u8; 1024] = [0; 1024];
-            let (bytes_written, addr) = self.sock.recv_from(&mut buff).expect("Receive error");
+            let (bytes_written, addr) = self.sock.recv_from(&mut buff)?;
 
             println!("Received {} bytes from {}", bytes_written, addr.ip());
             let packet: DnsPacket = DnsPacket::parse(&buff);
             let res: DnsPacket = DnsHandler::handle_packet(&packet);
             res.print_data();
+
+            if let Ok(bytes) = res.to_network_bytes() {
+                println!("Sending response to {}", addr.ip());
+                self.sock.send_to(&bytes, addr)?;
+            }
         }
     }
 }
