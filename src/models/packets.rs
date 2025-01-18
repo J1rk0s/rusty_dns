@@ -125,8 +125,18 @@ impl DnsPacket {
         println!("  QNAME: {}", self.question.qname);
         println!("  QTYPE: {}", self.question.qtype);
         println!("  QCLASS: {}", self.question.qclass);
+        println!("DNS answer");
+        println!("  NAME: {}", self.answer.name);
+        println!("  TYPE: {}", self.answer.type_code);
+        println!("  TTL: {}", self.answer.ttl);
+        println!("  RDLEN: {}", self.answer.rdlen);
+        println!("  RDATA: {:?}", self.answer.rdata);
         println!();
         println!();
+    }
+
+    pub fn to_network_bytes(&self) -> Vec<u8> {
+        todo!()
     }
     
 }
