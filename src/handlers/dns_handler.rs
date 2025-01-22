@@ -18,31 +18,57 @@ impl DnsHandler {
         cloned.answer.name = packet.question.qname.clone();
 
         match cloned.question.qtype {
-            1 => {
-                cloned.answer.type_code = 0x0001;
-                cloned.answer.class = 0x0001;
-                cloned.answer.ttl = 59;
-                cloned.answer.rdlen = 4;
-                
-                let ip = *LOOKUP.get(packet.question.qname.as_str()).unwrap_or(&("0.0.0.0", "0.0.0.0"));
-                cloned.answer.rdata = ip.0.parse::<Ipv4Addr>().unwrap().octets().into_iter().collect();
+            1 => { // A
+                DnsHandler::handle_ipv4(&mut cloned);
             },
 
-            28 => {
-                cloned.answer.type_code = 28;
-                cloned.answer.class = 0x0001;
-                cloned.answer.ttl = 59;
-                cloned.answer.rdlen = 16;
+            // 13 => { // HINFO
 
-                let ip = *LOOKUP.get(packet.question.qname.as_str()).unwrap_or(&("0.0.0.0", "0.0.0.0"));
-                cloned.answer.rdata = ip.1.parse::<Ipv6Addr>().unwrap().octets().into_iter().collect();
-            }
+            // },
+
+            28 => { // AAAAA
+                DnsHandler::handle_ipv6(&mut cloned);
+            },
 
             _ => {
-                cloned.header.flags |= 1;
+                cloned.header.flags |= 4;
             }
         }
 
         cloned
+    }
+
+    fn handle_ipv4(packet: &mut DnsPacket) {
+        packet.answer.type_code = 0x0001;
+        packet.answer.class = 0x0001;
+        packet.answer.ttl = 59;
+        packet.answer.rdlen = 4;
+
+        match LOOKUP.get(packet.question.qname.as_str()) {
+            Some(ip) => {
+                packet.answer.rdata = ip.0.parse::<Ipv4Addr>().unwrap().octets().into_iter().collect();
+            }
+
+            None => {
+                packet.header.flags |= 3;
+            }
+        }
+    }
+
+    fn handle_ipv6(packet: &mut DnsPacket) {
+        packet.answer.type_code = 28;
+        packet.answer.class = 0x0001;
+        packet.answer.ttl = 59;
+        packet.answer.rdlen = 16;
+
+        match LOOKUP.get(packet.question.qname.as_str()) {
+            Some(ip) => {
+                packet.answer.rdata = ip.1.parse::<Ipv6Addr>().unwrap().octets().into_iter().collect();
+            }
+
+            None => {
+                packet.header.flags |= 3;
+            }
+        }
     }
 }

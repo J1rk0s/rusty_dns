@@ -32,7 +32,7 @@ impl DnsServer {
             res.print_data();
 
             if let Ok(bytes) = res.to_network_bytes() {
-                println!("Sending response to {}", addr.ip());
+                println!("Sending response to {}\n", addr.ip());
                 self.sock.send_to(&bytes, addr)?;
             }
         }

@@ -42,6 +42,40 @@ pub struct DnsPacket {
     pub answer: DnsAnswer
 }
 
+impl DnsHeader {
+    pub fn qr(&self) -> u16 {
+        (self.flags >> 15) & 1
+    }
+
+    pub fn opcode(&self) -> u16 {
+        (self.flags >> 11) & 0xf
+    }
+
+    pub fn aa(&self) -> u16 {
+        (self.flags >> 10) & 1
+    }
+
+    pub fn tc(&self) -> u16 {
+        (self.flags >> 9) & 1
+    }
+
+    pub fn rd(&self) -> u16 {
+        (self.flags >> 8) & 1
+    }
+
+    pub fn ra(&self) -> u16 {
+        (self.flags >> 7) & 1
+    }
+
+    pub fn z(&self) -> u16 {
+        (self.flags >> 4) & 7
+    }
+
+    pub fn rcode(&self) -> u16 {
+        self.flags & 0xf
+    }
+}
+
 impl DnsPacket {
 
     /// Converts u8 buffer to a DnsPacket
@@ -100,25 +134,16 @@ impl DnsPacket {
     }
 
     /// Prints the DNS header flags
-    pub fn print_flags(&self) -> () {
-        let qr = (self.header.flags >> 15) & 0b1;
-        let opcode = (self.header.flags >> 11) & 0b1111;
-        let aa = (self.header.flags >> 10) & 0b1;
-        let tc = (self.header.flags >> 9) & 0b1;
-        let rd = (self.header.flags >> 8) & 0b1;
-        let ra = (self.header.flags >> 7) & 0b1;
-        let z = (self.header.flags >> 4) & 0b111;
-        let rcode = self.header.flags & 0b1111;
-        
+    pub fn print_flags(&self) -> () {        
         println!("  DNS flags ({}):", self.header.flags);
-        println!("      QR: {}", qr);
-        println!("      OPCODE: {}", opcode);
-        println!("      AA: {}", aa);
-        println!("      TC: {}", tc);
-        println!("      RD: {}", rd);
-        println!("      RA: {}", ra);
-        println!("      Z: {}", z);
-        println!("      RCODE: {}", rcode);
+        println!("      QR: {}", self.header.qr());
+        println!("      OPCODE: {}", self.header.opcode());
+        println!("      AA: {}", self.header.aa());
+        println!("      TC: {}", self.header.tc());
+        println!("      RD: {}", self.header.rd());
+        println!("      RA: {}", self.header.ra());
+        println!("      Z: {}", self.header.z());
+        println!("      RCODE: {}", self.header.rcode());
     }
 
     /// Prints the DNS header and question to the console
