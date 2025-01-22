@@ -22,13 +22,9 @@ impl DnsHandler {
                 DnsHandler::handle_ipv4(&mut cloned);
             },
 
-            12 => {
+            12 => { // PTR
                 DnsHandler::handle_ptr(&mut cloned);
             }
-
-            // 13 => { // HINFO
-
-            // },
 
             28 => { // AAAA
                 DnsHandler::handle_ipv6(&mut cloned);
