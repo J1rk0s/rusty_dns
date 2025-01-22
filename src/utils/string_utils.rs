@@ -11,5 +11,7 @@ pub fn str_dns_bytes(old: &str) -> std::io::Result<Vec<u8>> {
         }
     }
 
+    buff.write_u8(0)?;
+
     Ok(buff)
 }

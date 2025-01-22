@@ -1,6 +1,6 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use crate::models::{lookup::LOOKUP, packets::DnsPacket};
+use crate::{models::{lookup::LOOKUP, packets::{DnsAnswer, DnsPacket}}, string_utils::str_dns_bytes};
 
 pub struct DnsHandler {}
 
@@ -22,16 +22,22 @@ impl DnsHandler {
                 DnsHandler::handle_ipv4(&mut cloned);
             },
 
+            12 => {
+                DnsHandler::handle_ptr(&mut cloned);
+            }
+
             // 13 => { // HINFO
 
             // },
 
-            28 => { // AAAAA
+            28 => { // AAAA
                 DnsHandler::handle_ipv6(&mut cloned);
             },
 
             _ => {
                 cloned.header.flags |= 4;
+                cloned.header.ancount = 0;
+                cloned.answer = DnsAnswer::default();
             }
         }
 
@@ -39,8 +45,8 @@ impl DnsHandler {
     }
 
     fn handle_ipv4(packet: &mut DnsPacket) {
-        packet.answer.type_code = 0x0001;
-        packet.answer.class = 0x0001;
+        packet.answer.type_code = 1;
+        packet.answer.class = 1;
         packet.answer.ttl = 59;
         packet.answer.rdlen = 4;
 
@@ -57,7 +63,7 @@ impl DnsHandler {
 
     fn handle_ipv6(packet: &mut DnsPacket) {
         packet.answer.type_code = 28;
-        packet.answer.class = 0x0001;
+        packet.answer.class = 1;
         packet.answer.ttl = 59;
         packet.answer.rdlen = 16;
 
@@ -70,5 +76,16 @@ impl DnsHandler {
                 packet.header.flags |= 3;
             }
         }
+    }
+
+    fn handle_ptr(packet: &mut DnsPacket) {
+        packet.answer.type_code = 12;
+        packet.answer.class = 1;
+        packet.answer.ttl = 59;
+        
+        let server_name = "rustydns.local";
+
+        packet.answer.rdata = str_dns_bytes(&server_name).unwrap();
+        packet.answer.rdlen = packet.answer.rdata.len() as u16;
     }
 }
