@@ -4,4 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rusty_dns_server.workspace = true
+rusty_dns_resolver.workspace = true
+rusty_dns_protocols.workspace = true

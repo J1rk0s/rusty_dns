@@ -1,13 +1,24 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use crate::{models::{lookup::LOOKUP, packets::{DnsAnswer, DnsPacket}}, string_utils::str_dns_bytes};
+use rusty_dns_protocols::*;
+use rusty_dns_protocols::models::lookup::LOOKUP;
+use rusty_dns_utils::string_utils::str_dns_bytes;
 
-pub struct DnsHandler {}
+pub struct DnsResolver {}
 
-impl DnsHandler {
+impl DnsResolver {
+
+    pub fn resolve(buff: &[u8]) -> Result<Vec<u8>, std::io::Error> {
+        let packet = DnsPacket::parse(buff);
+        let resolved = DnsResolver::resolve_packet(&packet);
+
+        resolved.print_data();
+
+        resolved.to_network_bytes()
+    }
 
     /// Creates a new packet with the old data and adds the answer section with the requested data
-    pub fn handle_packet(packet: &DnsPacket) -> DnsPacket {
+    pub fn resolve_packet(packet: &DnsPacket) -> DnsPacket {
         let mut cloned = packet.clone();
 
         // Header preparation
@@ -19,15 +30,15 @@ impl DnsHandler {
 
         match cloned.question.qtype {
             1 => { // A
-                DnsHandler::handle_ipv4(&mut cloned);
+                DnsResolver::resolve_ipv4(&mut cloned);
             },
 
             12 => { // PTR
-                DnsHandler::handle_ptr(&mut cloned);
+                DnsResolver::resolve_ptr(&mut cloned);
             }
 
             28 => { // AAAA
-                DnsHandler::handle_ipv6(&mut cloned);
+                DnsResolver::resolve_ipv6(&mut cloned);
             },
 
             _ => {
@@ -40,7 +51,7 @@ impl DnsHandler {
         cloned
     }
 
-    fn handle_ipv4(packet: &mut DnsPacket) {
+    fn resolve_ipv4(packet: &mut DnsPacket) {
         packet.answer.type_code = 1;
         packet.answer.class = 1;
         packet.answer.ttl = 59;
@@ -57,7 +68,7 @@ impl DnsHandler {
         }
     }
 
-    fn handle_ipv6(packet: &mut DnsPacket) {
+    fn resolve_ipv6(packet: &mut DnsPacket) {
         packet.answer.type_code = 28;
         packet.answer.class = 1;
         packet.answer.ttl = 59;
@@ -74,7 +85,7 @@ impl DnsHandler {
         }
     }
 
-    fn handle_ptr(packet: &mut DnsPacket) {
+    fn resolve_ptr(packet: &mut DnsPacket) {
         packet.answer.type_code = 12;
         packet.answer.class = 1;
         packet.answer.ttl = 59;

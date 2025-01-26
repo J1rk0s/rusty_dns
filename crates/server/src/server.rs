@@ -1,5 +1,5 @@
 use std::net::{self, UdpSocket};
-use crate::{models::packets::DnsPacket, DnsHandler};
+use rusty_dns_resolver::DnsResolver;
 use std::io::Result;
 
 pub struct DnsServer{
@@ -26,12 +26,7 @@ impl DnsServer {
             let (bytes_written, addr) = self.sock.recv_from(&mut buff)?;
 
             println!("Received {} bytes from {}", bytes_written, addr.ip());
-            let packet: DnsPacket = DnsPacket::parse(&buff);
-            
-            let res: DnsPacket = DnsHandler::handle_packet(&packet);
-            res.print_data();
-
-            if let Ok(bytes) = res.to_network_bytes() {
+            if let Ok(bytes) = DnsResolver::resolve(&buff) {
                 println!("Sending response to {}\n", addr.ip());
                 self.sock.send_to(&bytes, addr)?;
             }

@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use rusty_dns_server::{DnsHandler, models::DnsPacket};
+    use rusty_dns_protocols::DnsPacket;
+    use rusty_dns_resolver::DnsResolver;
 
     #[test]
     fn test_parsing(){
@@ -88,7 +89,7 @@ mod tests {
         ];
 
         let packet = DnsPacket::parse(&data);
-        let ans = DnsHandler::handle_packet(&packet);
+        let ans = DnsResolver::resolve_packet(&packet);
 
         assert_eq!(ans.answer.name, "google.com");
         assert_eq!(ans.answer.class, 1);

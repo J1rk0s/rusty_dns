@@ -1,0 +1,9 @@
+[package]
+name = "rusty_dns_protocols"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+byteorder.workspace = true
+lazy_static.workspace = true
+rusty_dns_utils.workspace = true

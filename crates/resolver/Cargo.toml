@@ -1,0 +1,9 @@
+[package]
+name = "rusty_dns_resolver"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rusty_dns_protocols.workspace = true
+rusty_dns_utils.workspace = true
+byteorder.workspace = true

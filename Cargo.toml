@@ -3,8 +3,19 @@ resolver = "2"
 members = [
     "crates/bin",
     "crates/server",
+    "crates/resolver",
+    "crates/protocols",
+    "crates/client",
+    "crates/utils",
     "tests"
 ]
 
 [workspace.dependencies]
 rusty_dns_server = { path = "crates/server" }
+rusty_dns_protocols = { path = "crates/protocols" }
+rusty_dns_resolver = { path = "crates/resolver" }
+rusty_dns_client = { path = "crates/client" }
+rusty_dns_utils = { path = "crates/utils"}
+
+byteorder = "1.5.0"
+lazy_static = "1.5.0"

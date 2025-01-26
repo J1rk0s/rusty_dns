@@ -1,8 +1,7 @@
 use std::io::{Result, Write};
 use byteorder::{BigEndian, WriteBytesExt};
 
-use crate::string_utils::str_dns_bytes;
-use crate::number_utils::*;
+use rusty_dns_utils::{number_utils::*, string_utils::*};
 
 #[repr(C)]
 #[derive(Clone, Copy, Default)]

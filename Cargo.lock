@@ -99,6 +99,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
+name = "client"
+version = "0.1.0"
+
+[[package]]
 name = "colorchoice"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -155,18 +159,43 @@ dependencies = [
 ]
 
 [[package]]
-name = "rusty_dns_server"
+name = "rusty_dns_protocols"
 version = "0.1.0"
 dependencies = [
  "byteorder",
  "lazy_static",
+ "rusty_dns_utils",
+]
+
+[[package]]
+name = "rusty_dns_resolver"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
+ "rusty_dns_protocols",
+ "rusty_dns_utils",
+]
+
+[[package]]
+name = "rusty_dns_server"
+version = "0.1.0"
+dependencies = [
+ "rusty_dns_resolver",
 ]
 
 [[package]]
 name = "rusty_dns_tests"
 version = "0.1.0"
 dependencies = [
- "rusty_dns_server",
+ "rusty_dns_protocols",
+ "rusty_dns_resolver",
+]
+
+[[package]]
+name = "rusty_dns_utils"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
 ]
 
 [[package]]

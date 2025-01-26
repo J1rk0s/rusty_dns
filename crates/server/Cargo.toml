@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-byteorder = "1.5.0"
-lazy_static = "1.5.0"
+rusty_dns_resolver.workspace = true
 
 [lib]
 name = "rusty_dns_server"
