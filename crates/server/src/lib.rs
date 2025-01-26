@@ -4,4 +4,6 @@ pub mod handlers;
 pub mod utils;
 
 pub use handlers::dns_handler::*;
-pub use utils::*;
+pub use server::*;
+
+use utils::*;

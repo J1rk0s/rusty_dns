@@ -1,6 +1,6 @@
-use rusty_dns::server::DnsServer;
 use std::io::Result;
 use clap::Parser;
+use rusty_dns_server::DnsServer;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

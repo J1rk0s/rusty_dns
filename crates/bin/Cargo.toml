@@ -1,0 +1,12 @@
+[package]
+name = "rusty_dns"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.27", features = ["derive"]}
+rusty_dns_server.workspace = true
+
+[[bin]]
+name = "rusty_dns"
+path = "src/main.rs"

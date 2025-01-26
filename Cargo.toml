@@ -1,9 +1,10 @@
-[package]
-name = "rusty_dns"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+resolver = "2"
+members = [
+    "crates/bin",
+    "crates/server",
+    "tests"
+]
 
-[dependencies]
-byteorder = "1.5.0"
-clap = { version = "4.5.27", features = ["derive"]}
-lazy_static = "1.5.0"
+[workspace.dependencies]
+rusty_dns_server = { path = "crates/server" }

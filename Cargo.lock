@@ -150,9 +150,23 @@ dependencies = [
 name = "rusty_dns"
 version = "0.1.0"
 dependencies = [
- "byteorder",
  "clap",
+ "rusty_dns_server",
+]
+
+[[package]]
+name = "rusty_dns_server"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
  "lazy_static",
+]
+
+[[package]]
+name = "rusty_dns_tests"
+version = "0.1.0"
+dependencies = [
+ "rusty_dns_server",
 ]
 
 [[package]]
