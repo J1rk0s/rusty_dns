@@ -41,7 +41,10 @@ mod packet_tests {
             0x1  // QCLASS
         ];
 
-        let packet = DnsPacket::parse(&data).unwrap();
+        let parsed = DnsPacket::parse(&data);
+        assert!(parsed.is_ok());
+        
+        let packet = parsed.unwrap();
 
         assert_eq!(packet.header.id, 51768);
         assert_eq!(packet.header.flags, 256);
