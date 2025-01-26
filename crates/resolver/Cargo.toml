@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 rusty_dns_protocols.workspace = true
 rusty_dns_utils.workspace = true
+rusty_dns_errors.workspace = true
 byteorder.workspace = true

@@ -9,7 +9,7 @@ pub struct DnsResolver {}
 impl DnsResolver {
 
     pub fn resolve(buff: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-        let packet = DnsPacket::parse(buff);
+        let packet = DnsPacket::parse(buff).unwrap();
         let resolved = DnsResolver::resolve_packet(&packet);
 
         resolved.print_data();

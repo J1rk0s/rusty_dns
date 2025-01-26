@@ -7,6 +7,7 @@ members = [
     "crates/protocols",
     "crates/client",
     "crates/utils",
+    "crates/errors",
     "tests"
 ]
 
@@ -16,6 +17,8 @@ rusty_dns_protocols = { path = "crates/protocols" }
 rusty_dns_resolver = { path = "crates/resolver" }
 rusty_dns_client = { path = "crates/client" }
 rusty_dns_utils = { path = "crates/utils"}
+rusty_dns_errors = { path = "crates/errors" }
 
 byteorder = "1.5.0"
 lazy_static = "1.5.0"
+thiserror = "2"

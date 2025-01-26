@@ -1,7 +1,8 @@
-use std::io::{Result, Write};
+use std::io::{self, Write};
 use byteorder::{BigEndian, WriteBytesExt};
 
 use rusty_dns_utils::{number_utils::*, string_utils::*};
+use rusty_dns_errors::protocol_errors::ProtocolError;
 
 #[repr(C)]
 #[derive(Clone, Copy, Default)]
@@ -76,18 +77,29 @@ impl DnsHeader {
 }
 
 impl DnsPacket {
-
     /// Converts u8 buffer to a DnsPacket
-    pub fn parse(data: &[u8]) -> DnsPacket {
-        assert!(data.len() > 12, "Data must always contain header");
+    pub fn parse(data: &[u8]) -> Result<DnsPacket, ProtocolError> {
+        fn parse_be_u16(slice: Option<&[u8]>) -> Result<u16, ProtocolError> {
+            Ok(
+                u16::from_be_bytes(
+                    slice.ok_or(ProtocolError::ParseError)?
+                    .try_into()
+                    .map_err(|_| ProtocolError::ParseError)?
+                )
+            )
+        }
+
+        if data.len() < 12 {
+            return Err(ProtocolError::ParseError)
+        }
 
         // Parsing network byte order to machine endian
-        let id = u16::from_be_bytes(data[0..2].try_into().unwrap());
-        let flags = u16::from_be_bytes(data[2..4].try_into().unwrap());
-        let qdcount = u16::from_be_bytes(data[4..6].try_into().unwrap());
-        let ancount = u16::from_be_bytes(data[6..8].try_into().unwrap());
-        let nscount = u16::from_be_bytes(data[8..10].try_into().unwrap());
-        let arcount = u16::from_be_bytes(data[10..12].try_into().unwrap());
+        let id = parse_be_u16(data.get(0..2))?;
+        let flags = parse_be_u16(data.get(2..4))?;
+        let qdcount = parse_be_u16(data.get(4..6))?;
+        let ancount = parse_be_u16(data.get(6..8))?;
+        let nscount = parse_be_u16(data.get(8..10))?;
+        let arcount = parse_be_u16(data.get(10..12))?;
 
         let header = DnsHeader {
             id,
@@ -102,12 +114,13 @@ impl DnsPacket {
         let mut name = "".to_owned();
         let mut idx = 12;
         while data[idx] != 0 {
-            let len = data[idx];
+            let len = *data.get(idx).ok_or(ProtocolError::ParseError)?;
 
             idx += 1;
 
             for _ in 0..len {
-                name.push(data[idx] as char);
+                let c = *data.get(idx).ok_or(ProtocolError::ParseError)?;
+                name.push(c as char);
                 idx += 1;
             }
 
@@ -116,8 +129,8 @@ impl DnsPacket {
 
         name = name.strip_suffix(".").unwrap().to_string();
 
-        let qtype = u16::from_be_bytes(data[idx + 1..idx + 3].try_into().unwrap());
-        let qclass = u16::from_be_bytes(data[idx + 3..idx + 5].try_into().unwrap());
+        let qtype = parse_be_u16(data.get(idx + 1..idx + 3))?;
+        let qclass = parse_be_u16(data.get(idx + 3..idx + 5))?;
 
         let question = DnsQuestion {
             qname: name,
@@ -125,15 +138,17 @@ impl DnsPacket {
             qclass
         };
 
-        DnsPacket {
-            header,
-            question,
-            answer: DnsAnswer::default()
-        }
+        Ok(
+            DnsPacket {
+                header,
+                question,
+                answer: DnsAnswer::default()
+            }
+        )
     }
 
     /// Prints the DNS header flags
-    pub fn print_flags(&self) -> () {        
+    fn print_flags(&self) -> () {        
         println!("  DNS flags ({}):", self.header.flags);
         println!("      QR: {}", self.header.qr());
         println!("      OPCODE: {}", self.header.opcode());
@@ -146,7 +161,7 @@ impl DnsPacket {
     }
 
     /// Prints the DNS header and question to the console
-    pub fn print_data(&self) {
+    pub fn print_data(&self) -> () {
         println!("Response packet data:");
         println!("DNS header");
         println!("  ID: {}", self.header.id);
@@ -171,11 +186,10 @@ impl DnsPacket {
         }
 
         println!();
-        println!();
     }
 
     /// Transforms the packet to an array of bytes in network byte order
-    pub fn to_network_bytes(&self) -> Result<Vec<u8>> {
+    pub fn to_network_bytes(&self) -> io::Result<Vec<u8>> {
         let mut buff: Vec<u8> = vec![];
 
         // Header conversion
