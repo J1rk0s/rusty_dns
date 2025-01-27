@@ -33,6 +33,7 @@ impl DnsServer {
                 }
 
                 Err(e) => {
+                    // TODO: Send back packets that are not properly formated and toggle format error in header flags
                     println!("{}", e);
                 }
             }

@@ -36,6 +36,10 @@ impl DnsResolver {
 
             12 => { // PTR
                 DnsResolver::resolve_ptr(&mut cloned);
+            },
+
+            13 => { // HINFO
+                DnsResolver::resolve_hinfo(&mut cloned);
             }
 
             28 => { // AAAA
@@ -66,6 +70,7 @@ impl DnsResolver {
 
             None => {
                 packet.header.flags |= 3;
+                packet.header.ancount = 0;
             }
         }
     }
@@ -84,6 +89,7 @@ impl DnsResolver {
 
             None => {
                 packet.header.flags |= 3;
+                packet.header.ancount = 0;
             }
         }
     }
@@ -97,6 +103,28 @@ impl DnsResolver {
         let server_name = "rustydns.local";
 
         packet.answer.rdata = str_dns_bytes(&server_name).unwrap();
+        packet.answer.rdlen = packet.answer.rdata.len() as u16;
+    }
+
+    /// Resolves host information for packet
+    fn resolve_hinfo(packet: &mut DnsPacket) {
+        packet.answer.type_code = 13;
+        packet.answer.class = 1;
+        packet.answer.ttl = 256;
+
+        let cpu = "bober";
+        let os = "laces";
+
+        let mut data: Vec<u8> = vec![];
+
+        // TODO: Fix hinfo's null bytes at the end
+
+        data.extend(str_dns_bytes(&cpu).unwrap());
+        data.extend(str_dns_bytes(&os).unwrap());
+
+        println!("Data: {:?}", data);
+
+        packet.answer.rdata = data;
         packet.answer.rdlen = packet.answer.rdata.len() as u16;
     }
 }

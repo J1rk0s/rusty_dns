@@ -124,6 +124,7 @@ impl DnsPacket {
         }
 
         name = name.strip_suffix(".").unwrap().to_string();
+        name = name.as_str().to_ascii_lowercase();
 
         let qtype = parse_be_u16(data.get(idx + 1..idx + 3))?;
         let qclass = parse_be_u16(data.get(idx + 3..idx + 5))?;
@@ -171,7 +172,7 @@ impl DnsPacket {
         println!("  QTYPE: {}", self.question.qtype);
         println!("  QCLASS: {}", self.question.qclass);
 
-        if self.header.ancount != 0 {
+        if self.header.ancount != 0 || self.header.rcode() == 0 {
             println!("DNS answer");
             println!("  NAME: {}", self.answer.name);
             println!("  TYPE: {}", self.answer.type_code);
@@ -204,15 +205,17 @@ impl DnsPacket {
         buff.write(&u16_to_bytes(self.question.qclass))?;
 
         // Answer conversion
-        let mut aname: Vec<u8> = str_dns_bytes(&self.answer.name)?;
-        buff.append(&mut aname);
-        buff.write(&u16_to_bytes(self.answer.type_code))?;
-        buff.write(&u16_to_bytes(self.answer.class))?;
-        buff.write(&u32_to_bytes(self.answer.ttl))?;
-        buff.write(&u16_to_bytes(self.answer.rdlen))?;
+        if self.header.ancount > 0 {
+            let mut aname: Vec<u8> = str_dns_bytes(&self.answer.name)?;
+            buff.append(&mut aname);
+            buff.write(&u16_to_bytes(self.answer.type_code))?;
+            buff.write(&u16_to_bytes(self.answer.class))?;
+            buff.write(&u32_to_bytes(self.answer.ttl))?;
+            buff.write(&u16_to_bytes(self.answer.rdlen))?;
 
-        let mut octets: Vec<u8> = self.answer.rdata.clone();
-        buff.append(&mut octets);
+            let mut octets: Vec<u8> = self.answer.rdata.clone();
+            buff.append(&mut octets);
+        }
 
         Ok(buff)
     }
