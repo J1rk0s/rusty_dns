@@ -8,7 +8,7 @@ pub struct DnsServer{
 }
 
 impl DnsServer {
-    pub fn init(addr: &str, port: u16) -> DnsServer {
+    pub fn new(addr: &str, port: u16) -> DnsServer {
         let ip = format!("{}:{}", addr, port);
         let socket = UdpSocket::bind(&ip).expect("Failed to create udp socket");
 
@@ -26,9 +26,15 @@ impl DnsServer {
             let (bytes_written, addr) = self.sock.recv_from(&mut buff)?;
 
             println!("Received {} bytes from {}", bytes_written, addr.ip());
-            if let Ok(bytes) = DnsResolver::resolve(&buff) {
-                println!("Sending response to {}\n", addr.ip());
-                self.sock.send_to(&bytes, addr)?;
+            match DnsResolver::resolve(&buff) {
+                Ok(bytes) => {
+                    println!("Sending response to {}\n", addr.ip());
+                    self.sock.send_to(&bytes, addr)?;
+                }
+
+                Err(e) => {
+                    println!("{}", e);
+                }
             }
         }
     }

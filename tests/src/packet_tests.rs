@@ -4,7 +4,7 @@ mod packet_tests {
     use rusty_dns_protocols::DnsPacket;
 
     #[test]
-    fn test_valid_packet_parsing(){
+    fn test_valid_packet(){
         let data: [u8; 33] = [
             0xca, // ID
             0x38, // ID
@@ -59,7 +59,7 @@ mod packet_tests {
     }
 
     #[test]
-    fn test_invalid_packet_parsing() {
+    fn test_invalid_packet() {
         let data: [u8; 14] = [
             0xca, // ID
             0x38, // ID

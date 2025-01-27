@@ -89,10 +89,6 @@ impl DnsPacket {
             )
         }
 
-        if data.len() < 12 {
-            return Err(ProtocolError::ParseError)
-        }
-
         // Parsing network byte order to machine endian
         let id = parse_be_u16(data.get(0..2))?;
         let flags = parse_be_u16(data.get(2..4))?;

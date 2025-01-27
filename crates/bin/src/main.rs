@@ -15,6 +15,6 @@ struct Args {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let dns = DnsServer::init(&args.ip, args.port);
+    let dns = DnsServer::new(&args.ip, args.port);
     dns.run()
 }

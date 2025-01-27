@@ -1,5 +1,6 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
+use rusty_dns_errors::protocol_errors::ProtocolError;
 use rusty_dns_protocols::*;
 use rusty_dns_protocols::models::lookup::LOOKUP;
 use rusty_dns_utils::string_utils::str_dns_bytes;
@@ -8,13 +9,13 @@ pub struct DnsResolver {}
 
 impl DnsResolver {
 
-    pub fn resolve(buff: &[u8]) -> Result<Vec<u8>, std::io::Error> {
-        let packet = DnsPacket::parse(buff).unwrap();
-        let resolved = DnsResolver::resolve_packet(&packet);
+    /// Parses a packet from given buffer, resolves the packet and returns the packet as bytes 
+    pub fn resolve(buff: &[u8]) -> Result<Vec<u8>, ProtocolError> {
+        let p = DnsPacket::parse(buff)?;
 
+        let resolved = DnsResolver::resolve_packet(&p);
         resolved.print_data();
-
-        resolved.to_network_bytes()
+        resolved.to_network_bytes().map_err(|_| ProtocolError::BytesConversionError)
     }
 
     /// Creates a new packet with the old data and adds the answer section with the requested data
@@ -41,7 +42,7 @@ impl DnsResolver {
                 DnsResolver::resolve_ipv6(&mut cloned);
             },
 
-            _ => {
+            _ => { // Other
                 cloned.header.flags |= 4;
                 cloned.header.ancount = 0;
                 cloned.answer = DnsAnswer::default();
@@ -51,6 +52,7 @@ impl DnsResolver {
         cloned
     }
 
+    /// Resolves IPv4 for the packet
     fn resolve_ipv4(packet: &mut DnsPacket) {
         packet.answer.type_code = 1;
         packet.answer.class = 1;
@@ -68,6 +70,7 @@ impl DnsResolver {
         }
     }
 
+    /// Resolves IPv6 for the packet
     fn resolve_ipv6(packet: &mut DnsPacket) {
         packet.answer.type_code = 28;
         packet.answer.class = 1;
@@ -85,10 +88,11 @@ impl DnsResolver {
         }
     }
 
+    /// Resolves server name for the packet
     fn resolve_ptr(packet: &mut DnsPacket) {
         packet.answer.type_code = 12;
         packet.answer.class = 1;
-        packet.answer.ttl = 59;
+        packet.answer.ttl = 256;
         
         let server_name = "rustydns.local";
 
