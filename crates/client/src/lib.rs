@@ -6,6 +6,8 @@ pub struct DnsClient {
 }
 
 impl DnsClient {
+
+    /// Initializes new dns client
     pub fn new(destination: String, port: u16) -> Self {
         let s = UdpSocket::bind(format!("{}:{}", destination, port));
 
