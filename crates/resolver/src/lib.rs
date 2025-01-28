@@ -120,7 +120,10 @@ impl DnsResolver {
         // TODO: Fix hinfo's null bytes at the end
 
         data.extend(str_dns_bytes(&cpu).unwrap());
+        data.pop();
+
         data.extend(str_dns_bytes(&os).unwrap());
+        data.pop();
 
         println!("Data: {:?}", data);
 
