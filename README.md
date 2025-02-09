@@ -9,3 +9,7 @@ or
 ```
 ./rusty_dns --ip <ip>
 ```
+## TODO
+* Complete the client
+* Add new methods like TXT or MX
+* Add packet builder 
