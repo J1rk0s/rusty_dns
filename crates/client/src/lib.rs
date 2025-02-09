@@ -1,5 +1,7 @@
+
 use std::net::UdpSocket;
 
+#[allow(dead_code)]
 pub struct DnsClient {
     sock: UdpSocket,
     dest_addr: String,

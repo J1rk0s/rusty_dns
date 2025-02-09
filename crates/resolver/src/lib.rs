@@ -117,15 +117,11 @@ impl DnsResolver {
 
         let mut data: Vec<u8> = vec![];
 
-        // TODO: Fix hinfo's null bytes at the end
-
         data.extend(str_dns_bytes(&cpu).unwrap());
         data.pop();
 
         data.extend(str_dns_bytes(&os).unwrap());
         data.pop();
-
-        println!("Data: {:?}", data);
 
         packet.answer.rdata = data;
         packet.answer.rdlen = packet.answer.rdata.len() as u16;
