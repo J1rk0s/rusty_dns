@@ -145,7 +145,7 @@ impl DnsPacket {
     }
 
     /// Prints the DNS header flags
-    fn print_flags(&self) -> () {        
+    fn print_flags(&self) {        
         println!("  DNS flags ({}):", self.header.flags);
         println!("      QR: {}", self.header.qr());
         println!("      OPCODE: {}", self.header.opcode());
@@ -158,7 +158,7 @@ impl DnsPacket {
     }
 
     /// Prints the DNS header and question to the console
-    pub fn print_data(&self) -> () {
+    pub fn print_data(&self) {
         println!("Response packet data:");
         println!("DNS header");
         println!("  ID: {}", self.header.id);
@@ -201,17 +201,17 @@ impl DnsPacket {
         // Question conversion
         let mut qname: Vec<u8> = str_dns_bytes(&self.question.qname)?;
         buff.append(&mut qname);
-        buff.write(&u16_to_bytes(self.question.qtype))?;
-        buff.write(&u16_to_bytes(self.question.qclass))?;
+        buff.write_all(&u16_to_bytes(self.question.qtype))?;
+        buff.write_all(&u16_to_bytes(self.question.qclass))?;
 
         // Answer conversion
         if self.header.ancount > 0 {
             let mut aname: Vec<u8> = str_dns_bytes(&self.answer.name)?;
             buff.append(&mut aname);
-            buff.write(&u16_to_bytes(self.answer.type_code))?;
-            buff.write(&u16_to_bytes(self.answer.class))?;
-            buff.write(&u32_to_bytes(self.answer.ttl))?;
-            buff.write(&u16_to_bytes(self.answer.rdlen))?;
+            buff.write_all(&u16_to_bytes(self.answer.type_code))?;
+            buff.write_all(&u16_to_bytes(self.answer.class))?;
+            buff.write_all(&u32_to_bytes(self.answer.ttl))?;
+            buff.write_all(&u16_to_bytes(self.answer.rdlen))?;
 
             let mut octets: Vec<u8> = self.answer.rdata.clone();
             buff.append(&mut octets);

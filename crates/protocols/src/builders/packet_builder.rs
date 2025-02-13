@@ -1,14 +1,13 @@
 use crate::{DnsHeader, DnsPacket, DnsQuestion};
 
+#[derive(Default)]
 pub struct DnsPacketBuilder {
     packet: DnsPacket
 }
 
 impl DnsPacketBuilder {
     pub fn new() -> Self {
-        Self {
-            packet: DnsPacket::default()
-        }
+        Self::default()
     }
 
     pub fn set_header(mut self, header: DnsHeader) -> Self {

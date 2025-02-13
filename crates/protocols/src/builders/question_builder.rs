@@ -1,14 +1,13 @@
 use crate::{models::dns_flags::{DnsQuestionClass, DnsQuestionTypes}, DnsQuestion};
 
+#[derive(Default)]
 pub struct DnsQuestionBuilder {
     question: DnsQuestion
 }
 
 impl DnsQuestionBuilder {
     pub fn new() -> Self {
-        Self {
-            question: DnsQuestion::default()
-        }
+        Self::default()
     }
 
     pub fn set_name(mut self, name: String) -> Self {

@@ -1,2 +1,2 @@
-pub mod packet_tests;
-pub mod resolver_tests;
+pub mod packet;
+pub mod resolver;

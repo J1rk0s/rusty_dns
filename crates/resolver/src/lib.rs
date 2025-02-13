@@ -102,7 +102,7 @@ impl DnsResolver {
         
         let server_name = "rustydns.local";
 
-        packet.answer.rdata = str_dns_bytes(&server_name).unwrap();
+        packet.answer.rdata = str_dns_bytes(server_name).unwrap();
         packet.answer.rdlen = packet.answer.rdata.len() as u16;
     }
 
@@ -117,10 +117,10 @@ impl DnsResolver {
 
         let mut data: Vec<u8> = vec![];
 
-        data.extend(str_dns_bytes(&cpu).unwrap());
+        data.extend(str_dns_bytes(cpu).unwrap());
         data.pop();
 
-        data.extend(str_dns_bytes(&os).unwrap());
+        data.extend(str_dns_bytes(os).unwrap());
         data.pop();
 
         packet.answer.rdata = data;

@@ -1,14 +1,13 @@
 use crate::{models::dns_flags::DnsHeaderFlag, DnsHeader};
 
+#[derive(Default)]
 pub struct DnsHeaderBuilder {
     header: DnsHeader
 }
 
 impl DnsHeaderBuilder {
     pub fn new() -> Self {
-        Self {
-            header: DnsHeader::default()
-        }
+        Self::default()
     }
 
     pub fn set_id(mut self, id: u16) -> Self {

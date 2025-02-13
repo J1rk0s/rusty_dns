@@ -17,11 +17,9 @@ impl PacketDirector {
             .seq_qclass(DnsQuestionClass::Internet)
             .build();
 
-        let packet = DnsPacketBuilder::new()
+        DnsPacketBuilder::new()
             .set_header(header)
             .set_question(question)
-            .build();
-
-        packet
+            .build()
     }
 }
