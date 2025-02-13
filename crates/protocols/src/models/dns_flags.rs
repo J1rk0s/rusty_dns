@@ -18,3 +18,18 @@ impl DnsHeaderFlag {
         }
     }
 }
+
+#[derive(Debug)]
+pub enum DnsQuestionTypes {
+    A = 1,
+    PTR = 12,
+    HINFO = 13, 
+    AAAA = 28,
+}
+
+#[derive(Debug)]
+pub enum DnsQuestionClass {
+    Internet = 1,
+    Chaos = 3,
+    Hesiod = 4
+}
